@@ -1,5 +1,23 @@
 {
   "name": "csmju-campus-shuttle-management",
+  "version": "1.0.0",
   "private": true,
+  "description": "CSMJU UniRide - ระบบติดตามรถรับส่งภายในมหาวิทยาลัย",
+  "scripts": {
+    "build": "pnpm --filter backend build",
+    "start:dev": "pnpm --filter backend start:dev",
+    "dev": "pnpm --filter frontend dev",
+    "dev:all": "pnpm --parallel -r dev",
+    "test": "pnpm --filter backend test",
+    "test:e2e": "pnpm --filter backend test:e2e",
+    "test:integration": "pnpm --filter backend test:integration",
+    "prisma:migrate": "pnpm --filter backend prisma:migrate",
+    "prisma:seed": "pnpm --filter backend prisma:seed",
+    "conformance": "node standards/conformance/run.js",
+    "checks": "./standards/scripts/run-all-checks.sh ."
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "packageManager": "pnpm@9.15.9"
 }
