@@ -1,16 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 @Injectable()
 export class AuthService {
-  validateUser(credentials: any) {
-    return {
-      status: 'success',
-      message: 'Authentication successful',
-      access_token: 'mock-core-hub-token-12345',
-      user: {
-        core_user_id: 'user_mju_12345',
-        role: 'student',
-      },
-    };
+  private JWKS = createRemoteJWKSet(
+    new URL('https://core-hub.csmju.com/.well-known/jwks.json') // URL JWKS ของ Core Hub ตามมาตรฐาน
+  );
+
+  async validateToken(token: string) {
+    try {
+      const { payload } = await jwtVerify(token, this.JWKS, {
+        algorithms: ['RS256'],
+      });
+      return { status: 'success', user: payload };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token or JWKS verification failed');
+    }
   }
 }
