@@ -1,12 +1,50 @@
+import 'reflect-metadata';
+import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  
-  // ตั้งค่า Global Prefix ให้ตรงตามมาตรฐาน API conventions
-  app.setGlobalPrefix('api/v1');
+async function bootstrap(): Promise<void> {
+  const app = await NestFactory.create(AppModule, { bufferLogs: false });
+  const config = app.get(ConfigService);
 
-  await app.listen(3000);
+  // /api/health and /api/v1/... (spec §20-§21).
+  // The central SSO endpoints (/auth/login, /auth/callback, /auth/logout)
+  // stay at the root path (auth-contract 5).
+  app.setGlobalPrefix('api', {
+    exclude: [
+      { path: 'auth/login', method: RequestMethod.GET },
+      { path: 'auth/callback', method: RequestMethod.GET },
+      { path: 'auth/logout', method: RequestMethod.POST },
+    ],
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: false },
+    }),
+  );
+
+  app.enableShutdownHooks();
+
+  const port = config.get<number>('port', 3001);
+  await app.listen(port);
+
+  const logger = new Logger('Bootstrap');
+  logger.log(
+    JSON.stringify({
+      event: 'subsystem.started',
+      subsystem: config.get<string>('subsystemId'),
+      port,
+      coreHubUrl: config.get<string>('coreHub.url'),
+      jwksUrl: config.get<string>('coreHub.jwksUrl'),
+      issuer: config.get<string>('coreHub.issuer'),
+      audience: config.get<string>('coreHub.audience'),
+    }),
+  );
 }
-bootstrap();
+
+void bootstrap();
