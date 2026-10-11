@@ -1,39 +1,473 @@
 {
   "openapi": "3.0.3",
-  "info": { "title": "CSMJU UniRide — Campus Shuttle Management API", "version": "1.0.0" },
-  "servers": [{ "url": "/api" }],
-  "components": {
-    "securitySchemes": { "coreHub": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } }
+  "info": {
+    "title": "CSMJU UniRide — Campus Shuttle Management API",
+    "version": "1.0.0"
   },
-  "security": [{ "coreHub": [] }],
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "coreHub": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "coreHub": []
+    }
+  ],
   "paths": {
-    "/health": { "get": { "summary": "Health check", "security": [], "responses": { "200": { "description": "OK" } } } },
-    "/v1/me": { "get": { "summary": "Current user", "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } } } },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "summary": "Current user",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/v1/shuttle-routes": {
-      "get": { "summary": "List shuttle routes (paginated) — shuttle:read:any", "parameters": [
-        { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1 } },
-        { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
-        { "name": "keyword", "in": "query", "schema": { "type": "string" } },
-        { "name": "isActive", "in": "query", "schema": { "type": "boolean" } }
-      ], "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } } },
-      "post": { "summary": "Create a route with stops — shuttle:manage", "responses": { "201": { "description": "Created" }, "400": { "description": "Validation error" }, "403": { "description": "Forbidden" } } }
+      "get": {
+        "summary": "List shuttle routes (paginated) — shuttle:read:any",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a route with stops — shuttle:manage",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
     },
     "/v1/shuttle-routes/{id}": {
-      "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
-      "get": { "summary": "Get a route — shuttle:read:any", "responses": { "200": { "description": "OK" }, "404": { "description": "Not found" } } },
-      "patch": { "summary": "Update a route (stops replace the list) — shuttle:manage", "responses": { "200": { "description": "OK" }, "404": { "description": "Not found" } } },
-      "delete": { "summary": "Delete a route — shuttle:manage", "responses": { "200": { "description": "OK" }, "404": { "description": "Not found" } } }
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Get a route — shuttle:read:any",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a route (stops replace the list) — shuttle:manage",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a route — shuttle:manage",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
     },
     "/v1/bus-locations": {
-      "get": { "summary": "Location history, newest first — shuttle:read:any", "parameters": [
-        { "name": "routeId", "in": "query", "schema": { "type": "string", "format": "uuid" } },
-        { "name": "page", "in": "query", "schema": { "type": "integer" } },
-        { "name": "limit", "in": "query", "schema": { "type": "integer" } }
-      ], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Report bus location — bus-location:report", "responses": { "201": { "description": "Created" }, "400": { "description": "Validation error" }, "404": { "description": "Route not found" } } }
+      "get": {
+        "summary": "Location history, newest first — shuttle:read:any",
+        "parameters": [
+          {
+            "name": "routeId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Report bus location — bus-location:report",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Route not found"
+          }
+        }
+      }
     },
     "/v1/bus-locations/latest": {
-      "get": { "summary": "Latest location of every active route (poll every 10–15 s) — shuttle:read:any", "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "summary": "Latest location of every active route (poll every 10–15 s) — shuttle:read:any",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/ride-requests": {
+      "get": {
+        "summary": "List ride requests (paginated) — ride-request:manage",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Call the bus at a stop (one active request per rider) — ride-request:create",
+        "responses": {
+          "201": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Error"
+          },
+          "404": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/v1/ride-requests/summary": {
+      "get": {
+        "summary": "Riders waiting per stop (routeId optional) — shuttle:read:any",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/ride-requests/stats": {
+      "get": {
+        "summary": "Demand per stop, last 30 days — ride-request:manage",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/ride-requests/mine": {
+      "get": {
+        "summary": "My active ride request — ride-request:create",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/ride-requests/clear": {
+      "post": {
+        "summary": "Driver picked up everyone at a stop — ride-request:manage",
+        "responses": {
+          "201": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/ride-requests/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "delete": {
+        "summary": "Cancel my ride request — ride-request:create",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Error"
+          },
+          "404": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/v1/lost-items": {
+      "get": {
+        "summary": "Lost/found items (riders: own reports + public found board) — lost-item:report | lost-item:manage",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Report a lost (rider) or found (driver) item — lost-item:report",
+        "responses": {
+          "201": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/v1/lost-items/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "patch": {
+        "summary": "Update status OPEN/RETURNED/CLOSED — lost-item:manage",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/v1/service-reviews": {
+      "get": {
+        "summary": "Service reviews (paginated) — review:read:any",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Review the service 1–5 — review:create",
+        "responses": {
+          "201": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/v1/service-reviews/summary": {
+      "get": {
+        "summary": "Average rating and count — review:read:any",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/announcements": {
+      "get": {
+        "summary": "Announcements, newest first — shuttle:read:any",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Announce to riders — announcement:create",
+        "responses": {
+          "201": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/v1/announcements/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "delete": {
+        "summary": "Delete an announcement — announcement:create",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/v1/problem-reports": {
+      "get": {
+        "summary": "Problem reports inbox — problem-report:manage",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Report a problem (late, driver, vehicle, safety, other) — problem-report:create",
+        "responses": {
+          "201": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/v1/problem-reports/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "patch": {
+        "summary": "Set OPEN/RESOLVED — problem-report:manage",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Error"
+          }
+        }
+      }
     }
   }
 }

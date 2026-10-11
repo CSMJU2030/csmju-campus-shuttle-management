@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsLatitude, IsLongitude, IsOptional, IsUUID } from 'class-validator';
-import { PassengerLevel } from '../../../generated/prisma/client';
+import { IsEnum, IsInt, IsLatitude, IsLongitude, IsOptional, IsUUID, Max, Min } from 'class-validator';
+import { BusServiceStatus, PassengerLevel } from '../../../generated/prisma/client';
 
 export class CreateBusLocationDto {
   @IsUUID()
@@ -21,4 +21,15 @@ export class CreateBusLocationDto {
   @IsOptional()
   @IsEnum(PassengerLevel)
   passengerLevel?: PassengerLevel;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(200)
+  passengerCount?: number;
+
+  @IsOptional()
+  @IsEnum(BusServiceStatus)
+  serviceStatus?: BusServiceStatus;
 }

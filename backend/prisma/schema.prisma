@@ -14,6 +14,42 @@ datasource db {
   provider = "postgresql"
 }
 
+enum BusServiceStatus {
+  RUNNING
+  BREAK
+  OFF_DUTY
+}
+
+enum RideRequestStatus {
+  WAITING
+  PICKED_UP
+  CANCELLED
+}
+
+enum LostItemType {
+  LOST
+  FOUND
+}
+
+enum LostItemStatus {
+  OPEN
+  RETURNED
+  CLOSED
+}
+
+enum ProblemCategory {
+  LATE
+  DRIVER
+  VEHICLE
+  SAFETY
+  OTHER
+}
+
+enum ProblemStatus {
+  OPEN
+  RESOLVED
+}
+
 enum PassengerLevel {
   LOW
   MEDIUM
@@ -31,8 +67,13 @@ model ShuttleRoute {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  stops     ShuttleStop[]
-  locations BusLocation[]
+  stops         ShuttleStop[]
+  locations     BusLocation[]
+  rideRequests  RideRequest[]
+  lostItems     LostItem[]
+  reviews       ServiceReview[]
+  announcements Announcement[]
+  problems      ProblemReport[]
 
   @@map("shuttle_routes")
 }
@@ -48,8 +89,9 @@ model ShuttleStop {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  route     ShuttleRoute  @relation(fields: [routeId], references: [id], onDelete: Cascade)
-  locations BusLocation[]
+  route        ShuttleRoute  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  locations    BusLocation[]
+  rideRequests RideRequest[]
 
   @@unique([routeId, sequence])
   @@map("shuttle_stops")
@@ -63,6 +105,8 @@ model BusLocation {
   latitude             Float
   longitude            Float
   passengerLevel       PassengerLevel @default(LOW) @map("passenger_level")
+  passengerCount       Int?           @map("passenger_count")
+  serviceStatus        BusServiceStatus @default(RUNNING) @map("service_status")
   reportedByCoreUserId String         @map("reported_by_core_user_id")
   reportedAt           DateTime       @default(now()) @map("reported_at")
 
@@ -71,4 +115,80 @@ model BusLocation {
 
   @@index([routeId, reportedAt])
   @@map("bus_locations")
+}
+
+/// นักศึกษาเรียกรถ: "ฉันรออยู่ที่ป้ายนี้"
+model RideRequest {
+  id                    String            @id @default(uuid())
+  routeId               String            @map("route_id")
+  stopId                String            @map("stop_id")
+  requestedByCoreUserId String            @map("requested_by_core_user_id")
+  status                RideRequestStatus @default(WAITING)
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+
+  route ShuttleRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  stop  ShuttleStop  @relation(fields: [stopId], references: [id], onDelete: Cascade)
+
+  @@index([stopId, status])
+  @@map("ride_requests")
+}
+
+/// แจ้งของหาย (นักศึกษา) / ของที่พบบนรถ (คนขับ)
+model LostItem {
+  id                   String         @id @default(uuid())
+  routeId              String?        @map("route_id")
+  type                 LostItemType
+  description          String
+  status               LostItemStatus @default(OPEN)
+  reportedByCoreUserId String         @map("reported_by_core_user_id")
+  createdAt            DateTime       @default(now()) @map("created_at")
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+
+  route ShuttleRoute? @relation(fields: [routeId], references: [id], onDelete: SetNull)
+
+  @@map("lost_items")
+}
+
+/// รีวิวการบริการคนขับ/สายรถ
+model ServiceReview {
+  id                   String   @id @default(uuid())
+  routeId              String?  @map("route_id")
+  rating               Int
+  comment              String?
+  reviewedByCoreUserId String   @map("reviewed_by_core_user_id")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  route ShuttleRoute? @relation(fields: [routeId], references: [id], onDelete: SetNull)
+
+  @@map("service_reviews")
+}
+
+/// ประกาศ/แจ้งเตือนถึงนักศึกษา (คนขับหรือผู้ดูแล)
+model Announcement {
+  id                  String   @id @default(uuid())
+  routeId             String?  @map("route_id")
+  message             String
+  createdByCoreUserId String   @map("created_by_core_user_id")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  route ShuttleRoute? @relation(fields: [routeId], references: [id], onDelete: SetNull)
+
+  @@map("announcements")
+}
+
+/// แจ้งปัญหา (รถมาช้า คนขับ ตัวรถ ความปลอดภัย อื่น ๆ) ถึงผู้ดูแล
+model ProblemReport {
+  id                   String          @id @default(uuid())
+  routeId              String?         @map("route_id")
+  category             ProblemCategory
+  message              String
+  status               ProblemStatus   @default(OPEN)
+  reportedByCoreUserId String          @map("reported_by_core_user_id")
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime        @updatedAt @map("updated_at")
+
+  route ShuttleRoute? @relation(fields: [routeId], references: [id], onDelete: SetNull)
+
+  @@map("problem_reports")
 }
