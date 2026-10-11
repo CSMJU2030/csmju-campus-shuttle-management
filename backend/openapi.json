@@ -1,0 +1,39 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "CSMJU UniRide — Campus Shuttle Management API", "version": "1.0.0" },
+  "servers": [{ "url": "/api" }],
+  "components": {
+    "securitySchemes": { "coreHub": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } }
+  },
+  "security": [{ "coreHub": [] }],
+  "paths": {
+    "/health": { "get": { "summary": "Health check", "security": [], "responses": { "200": { "description": "OK" } } } },
+    "/v1/me": { "get": { "summary": "Current user", "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } } } },
+    "/v1/shuttle-routes": {
+      "get": { "summary": "List shuttle routes (paginated) — shuttle:read:any", "parameters": [
+        { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "keyword", "in": "query", "schema": { "type": "string" } },
+        { "name": "isActive", "in": "query", "schema": { "type": "boolean" } }
+      ], "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } } },
+      "post": { "summary": "Create a route with stops — shuttle:manage", "responses": { "201": { "description": "Created" }, "400": { "description": "Validation error" }, "403": { "description": "Forbidden" } } }
+    },
+    "/v1/shuttle-routes/{id}": {
+      "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+      "get": { "summary": "Get a route — shuttle:read:any", "responses": { "200": { "description": "OK" }, "404": { "description": "Not found" } } },
+      "patch": { "summary": "Update a route (stops replace the list) — shuttle:manage", "responses": { "200": { "description": "OK" }, "404": { "description": "Not found" } } },
+      "delete": { "summary": "Delete a route — shuttle:manage", "responses": { "200": { "description": "OK" }, "404": { "description": "Not found" } } }
+    },
+    "/v1/bus-locations": {
+      "get": { "summary": "Location history, newest first — shuttle:read:any", "parameters": [
+        { "name": "routeId", "in": "query", "schema": { "type": "string", "format": "uuid" } },
+        { "name": "page", "in": "query", "schema": { "type": "integer" } },
+        { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+      ], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Report bus location — bus-location:report", "responses": { "201": { "description": "Created" }, "400": { "description": "Validation error" }, "404": { "description": "Route not found" } } }
+    },
+    "/v1/bus-locations/latest": {
+      "get": { "summary": "Latest location of every active route (poll every 10–15 s) — shuttle:read:any", "responses": { "200": { "description": "OK" } } }
+    }
+  }
+}

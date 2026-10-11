@@ -1,0 +1,74 @@
+// Tools Shortcut Hub - Database Schema
+//
+// Naming follows the CSMJU2030 Subsystem Standard: PostgreSQL tables are plural
+// snake_case and every column is snake_case through @map, while Prisma/TypeScript
+// field names stay camelCase. Application code is therefore unchanged.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PassengerLevel {
+  LOW
+  MEDIUM
+  HIGH
+  FULL
+}
+
+/// เส้นทางรถรับส่ง
+model ShuttleRoute {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  departureTimes String[] @default([]) @map("departure_times")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  stops     ShuttleStop[]
+  locations BusLocation[]
+
+  @@map("shuttle_routes")
+}
+
+/// จุดจอดในแต่ละเส้นทาง (เรียงตาม sequence)
+model ShuttleStop {
+  id        String   @id @default(uuid())
+  routeId   String   @map("route_id")
+  name      String
+  latitude  Float
+  longitude Float
+  sequence  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  route     ShuttleRoute  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  locations BusLocation[]
+
+  @@unique([routeId, sequence])
+  @@map("shuttle_stops")
+}
+
+/// ตำแหน่งรถที่เจ้าหน้าที่/คนขับรายงาน (ใช้ polling ดูตำแหน่งล่าสุด)
+model BusLocation {
+  id                   String         @id @default(uuid())
+  routeId              String         @map("route_id")
+  currentStopId        String?        @map("current_stop_id")
+  latitude             Float
+  longitude            Float
+  passengerLevel       PassengerLevel @default(LOW) @map("passenger_level")
+  reportedByCoreUserId String         @map("reported_by_core_user_id")
+  reportedAt           DateTime       @default(now()) @map("reported_at")
+
+  route       ShuttleRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  currentStop ShuttleStop? @relation(fields: [currentStopId], references: [id], onDelete: SetNull)
+
+  @@index([routeId, reportedAt])
+  @@map("bus_locations")
+}
