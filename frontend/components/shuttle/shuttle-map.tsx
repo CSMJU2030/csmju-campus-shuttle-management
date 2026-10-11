@@ -14,6 +14,7 @@ export function ShuttleMap({ routes, latest }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const layerRef = useRef<import("leaflet").LayerGroup | null>(null);
+  const fittedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -21,7 +22,7 @@ export function ShuttleMap({ routes, latest }: Props) {
       const L = await import("leaflet");
       if (cancelled || !containerRef.current) return;
       if (!mapRef.current) {
-        mapRef.current = L.map(containerRef.current).setView([18.8925, 99.002], 15);
+        mapRef.current = L.map(containerRef.current).setView([18.8965, 99.0115], 16);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution: "&copy; OpenStreetMap contributors",
           maxZoom: 19,
@@ -30,6 +31,15 @@ export function ShuttleMap({ routes, latest }: Props) {
       }
       const layer = layerRef.current!;
       layer.clearLayers();
+      // Zoom to all stops once, so the campus is always in view.
+      const allStops = routes.flatMap((route) => route.stops);
+      if (!fittedRef.current && allStops.length > 0) {
+        mapRef.current.fitBounds(
+          L.latLngBounds(allStops.map((stop) => [stop.latitude, stop.longitude] as [number, number])),
+          { padding: [30, 30] },
+        );
+        fittedRef.current = true;
+      }
       routes.forEach((route, index) => {
         const color = ROUTE_COLORS[index % ROUTE_COLORS.length];
         const points = route.stops.map((stop) => [stop.latitude, stop.longitude] as [number, number]);
@@ -43,7 +53,7 @@ export function ShuttleMap({ routes, latest }: Props) {
         if (bus) {
           L.marker([bus.latitude, bus.longitude], {
             icon: L.divIcon({
-              html: '<span class="block h-5 w-5 rounded-full border-2 border-white bg-blue-700 shadow"></span>',
+              html: '<span class="block h-5 w-5 rounded-full border-2 border-white bg-primary shadow"></span>',
               className: "",
               iconSize: [20, 20],
             }),
@@ -66,5 +76,5 @@ export function ShuttleMap({ routes, latest }: Props) {
     [],
   );
 
-  return <div ref={containerRef} className="h-80 w-full rounded-xl border border-gray-200 z-0" />;
+  return <div ref={containerRef} className="h-80 w-full rounded-xl border border-outline-variant z-0" />;
 }
