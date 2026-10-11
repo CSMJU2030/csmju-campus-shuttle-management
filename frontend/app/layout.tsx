@@ -57,7 +57,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const nav = [
     { label: "ตารางและตำแหน่งรถ", href: "/shuttle", icon: "dashboard" as const },
     ...(isStaffOrAdmin
-      ? [{ label: "รายงานตำแหน่งรถ", href: "/driver", icon: "settings" as const }]
+      ? [
+          { label: "แผงคนขับรถ", href: "/driver", icon: "settings" as const },
+          { label: "แผงผู้ดูแล", href: "/admin", icon: "settings" as const },
+        ]
       : []),
   ];
 

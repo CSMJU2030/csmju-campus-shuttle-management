@@ -12,6 +12,11 @@ import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { BusLocationsModule } from './bus-locations/bus-locations.module';
 import { ShuttleRoutesModule } from './shuttle-routes/shuttle-routes.module';
+import { RideRequestsModule } from './ride-requests/ride-requests.module';
+import { LostItemsModule } from './lost-items/lost-items.module';
+import { ServiceReviewsModule } from './service-reviews/service-reviews.module';
+import { AnnouncementsModule } from './announcements/announcements.module';
+import { ProblemReportsModule } from './problem-reports/problem-reports.module';
 
 @Module({
   imports: [
@@ -26,6 +31,11 @@ import { ShuttleRoutesModule } from './shuttle-routes/shuttle-routes.module';
     HealthModule,
     ShuttleRoutesModule,
     BusLocationsModule,
+    RideRequestsModule,
+    LostItemsModule,
+    ServiceReviewsModule,
+    AnnouncementsModule,
+    ProblemReportsModule,
   ],
   providers: [
     // Every route is authenticated unless explicitly marked @Public().
