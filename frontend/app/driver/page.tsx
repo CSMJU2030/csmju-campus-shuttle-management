@@ -10,8 +10,8 @@ export default async function DriverPage() {
   if (role !== "STAFF" && role !== "ADMIN") {
     return (
       <div className="flex flex-col items-center justify-center px-4 py-24 text-center">
-        <h1 className="mb-2 text-xl font-bold text-gray-900">ไม่มีสิทธิ์เข้าหน้านี้</h1>
-        <p className="max-w-md text-gray-600">หน้ารายงานตำแหน่งรถสำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น</p>
+        <h1 className="mb-2 text-xl font-bold text-on-surface">ไม่มีสิทธิ์เข้าหน้านี้</h1>
+        <p className="max-w-md text-on-surface-variant">หน้ารายงานตำแหน่งรถสำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น</p>
       </div>
     );
   }
